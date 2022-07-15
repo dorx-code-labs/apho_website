@@ -102,22 +102,27 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
 
     // Handle '/'
     if (uri.pathSegments.isEmpty) {
+      print("-----------------the segments are home---------------");
       return MyRoutePath.home();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.FORUM) {
+      print("-----------------the segments are forum---------------");
       return MyRoutePath.forum();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.CONTACT) {
+      print("-----------------the segments are contact---------------");
       return MyRoutePath.contact();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.TEAM) {
+      print("-----------------the segments are team---------------");
       return MyRoutePath.teamView();
     }
 
     if (uri.pathSegments.length == 2) {
+      print("-----------------the segments are multiple---------------");
       var remaining = uri.pathSegments[1];
 
       if (uri.pathSegments[0] == SERVICES) {
@@ -161,7 +166,7 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
     }
 
     // Handle unknown routes
-    print("-----------------its unknown---------------");
+    print("-----------------the segments are unknown---------------");
     return MyRoutePath.unknown();
   }
 
@@ -172,7 +177,9 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
       print("-----------------its a 404---------------");
       return RouteInformation(location: '/404');
     }
+
     if (path.isHomePage) {
+      print("-----------------its home---------------");
       return RouteInformation(location: '/');
     }
 
@@ -184,10 +191,12 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
       return RouteInformation(location: '/$TEAMMEMBERS/${path.id}');
     }
 
-    if (path.isContactUs || path.isTeamPage) {
+    if (path.isContactUs || path.isTeamPage || path.isForumPage) {
+      print("-----------------its ${path.type}---------------");
       return RouteInformation(location: '/${path.type}');
     }
 
+    print("-----------------its some unknown shit ${path.type}---------------");
     return null;
   }
 }
@@ -207,30 +216,36 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
   @override
   MyRoutePath get currentConfiguration {
     if (show404) {
-      print("fhgfhg");
+      print("unknown config");
       return MyRoutePath.unknown();
     }
 
     if (mode == MyRoutePath.FORUM) {
+      print("forum config");
       return MyRoutePath.forum();
     }
 
     if (mode == MyRoutePath.CONTACT) {
+      print("contact config");
       return MyRoutePath.contact();
     }
 
     if (mode == MyRoutePath.SERVICE) {
+      print("service config");
       return MyRoutePath.service(data, id);
     }
 
     if (mode == MyRoutePath.TEAM) {
+      print("team config");
       return MyRoutePath.teamView();
     }
 
     if (mode == MyRoutePath.TEAMDETAILS) {
+      print("team deets config");
       return MyRoutePath.teamDetails(data, id);
     }
 
+    print("home config");
     return MyRoutePath.home();
   }
 
@@ -280,6 +295,7 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
         }
 
         data = null;
+        mode = null;
         show404 = false;
         notifyListeners();
 
@@ -291,26 +307,30 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
   @override
   // ignore: avoid_renaming_method_parameters
   Future<void> setNewRoutePath(MyRoutePath path) async {
+    print("here's the path type: ${path.type}");
+    print("here's the path id: ${path.id}");
+    print("here's path isContact: ${path.isContactUs}");
+
     if (path.isUnknown) {
       show404 = true;
       return;
     }
 
     if (path.isContactUs) {
-      mode == MyRoutePath.CONTACT;
-      show404 = false;
-      return;
+      print("making mode to be contact");
+      mode = MyRoutePath.CONTACT;
     }
 
     if (path.isTeamPage) {
-      mode == MyRoutePath.TEAM;
-      show404 = false;
-      return;
+      mode = MyRoutePath.TEAM;
     }
 
     if (path.isServicePage) {
-      mode == MyRoutePath.SERVICE;
-      show404 = false;
+      mode = MyRoutePath.SERVICE;
+    }
+
+    if (path.isForumPage) {
+      mode = MyRoutePath.FORUM;
     }
 
     if (path.isServicePage) {
@@ -323,7 +343,7 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
       }
 
       if (sv != null) {
-        mode == MyRoutePath.SERVICE;
+        mode = MyRoutePath.SERVICE;
         data = sv;
       } else {
         show404 = true;
@@ -341,7 +361,7 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
       }
 
       if (sv != null) {
-        mode == MyRoutePath.TEAMDETAILS;
+        mode = MyRoutePath.TEAMDETAILS;
         data = sv;
       } else {
         show404 = true;
@@ -350,9 +370,11 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
     }
 
     show404 = false;
+    print("done reconfigging and this is mode: $mode");
   }
 
   void _handleBookTapped(String mm) {
+    print(mm.toString());
     mode = mm;
     notifyListeners();
   }
@@ -416,6 +438,7 @@ class MyRoutePath {
   bool get isHomePage => type == HOME;
   bool get isServicePage => type == SERVICE;
   bool get isTeamPage => type == TEAM;
+  bool get isForumPage => type == FORUM;
   bool get isTeamDetails => type == TEAMDETAILS;
   bool get isContactUs => type == CONTACT;
 }
@@ -476,14 +499,18 @@ class MyScaffold extends StatelessWidget {
               goHome: () {
                 onTapped(MyRoutePath.HOME);
               },
-              switchToIndex: (b) {},
+              switchToIndex: (b) {
+                onTapped(b);
+              },
               currentIndex: 2,
             ),
             tablet: WebNavigationBar(
               goHome: () {
                 onTapped(MyRoutePath.HOME);
               },
-              switchToIndex: (b) {},
+              switchToIndex: (b) {
+                onTapped(b);
+              },
               currentIndex: 1,
             ),
             mobile: SizedBox(),
@@ -651,7 +678,7 @@ class MyScaffold extends StatelessWidget {
           )
         : InkWell(
             onTap: () {
-              NavigationService().pop();
+              // NavigationService().pop();
 
               onTap();
             },

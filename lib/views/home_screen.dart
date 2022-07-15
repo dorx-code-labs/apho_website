@@ -34,16 +34,31 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen>
     with AutomaticKeepAliveClientMixin {
   int _currentIndex = 0;
+  ScrollController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    controller = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     return Scrollbar(
+      controller: controller,
       thumbVisibility: true,
       interactive: true,
       thickness: 10,
       child: CustomScrollView(
+        controller: controller,
         slivers: [
           SliverList(
             delegate: SliverChildListDelegate(

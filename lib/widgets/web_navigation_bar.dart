@@ -406,7 +406,7 @@ class AnimatedHoverIndicator extends StatelessWidget {
   AnimatedHoverIndicator({
     Key key,
     @required this.width,
-    this.indicatorColor = Colors.yellow,
+    this.indicatorColor = primaryColor,
     this.height = 6,
     this.curve = Curves.linearToEaseOut,
     this.isHover = false,
