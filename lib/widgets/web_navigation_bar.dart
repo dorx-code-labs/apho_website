@@ -1,11 +1,8 @@
 import 'package:apho/constants/ui.dart';
 import 'package:apho/main.dart';
 import 'package:apho/models/thing_type.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/services/ui_services.dart';
 import 'package:apho/views/home_screen.dart';
-import 'package:apho/views/products_view.dart';
-import 'package:apho/views/services_view.dart';
 import 'package:apho/widgets/responsive.dart';
 import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
@@ -16,13 +13,13 @@ import 'nimbus_button.dart';
 
 class WebNavigationBar extends StatefulWidget {
   final Function goHome;
-  final int currentIndex;
+  final String mode;
   final Function(String) switchToIndex;
 
   WebNavigationBar({
     Key key,
     @required this.goHome,
-    @required this.currentIndex,
+    @required this.mode,
     @required this.switchToIndex,
   }) : super(key: key);
 
@@ -70,7 +67,7 @@ class _WebNavigationBarState extends State<WebNavigationBar> {
                   );
                 },
                 title: "Home",
-                isSelected: widget.currentIndex == 4,
+                isSelected: widget.mode == MyRoutePath.HOME,
               ),
               SingleNavBarItem(
                 onTap: () {
@@ -101,7 +98,7 @@ class _WebNavigationBarState extends State<WebNavigationBar> {
                   ),
                 ],
                 title: "Services",
-                isSelected: widget.currentIndex == 1,
+                isSelected: widget.mode == MyRoutePath.SERVICE,
               ),
               SingleNavBarItem(
                 onTap: () {
@@ -110,7 +107,7 @@ class _WebNavigationBarState extends State<WebNavigationBar> {
                   );
                 },
                 title: "Health",
-                isSelected: widget.currentIndex == 2,
+                isSelected: widget.mode == MyRoutePath.FORUM,
               ),
               SingleNavBarItem(
                 onTap: () {
@@ -119,7 +116,7 @@ class _WebNavigationBarState extends State<WebNavigationBar> {
                   );
                 },
                 title: "Team",
-                isSelected: widget.currentIndex == 3,
+                isSelected: widget.mode == MyRoutePath.TEAM,
               ),
             ],
           ),
@@ -236,15 +233,7 @@ class _SingleNavBarItemState extends State<SingleNavBarItem> {
                             .map(
                               (e) => ListTile(
                                 onTap: () {
-                                  if (e.type == ThingType.SERVICE) {
-                                    NavigationService().push(
-                                      ServicesView(),
-                                    );
-                                  } else {
-                                    NavigationService().push(
-                                      ProductsView(),
-                                    );
-                                  }
+                                  widget.onTap();
                                 },
                                 title: Text(
                                   e.name,

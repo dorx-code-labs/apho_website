@@ -8,6 +8,7 @@ class SingleSelectTile extends StatelessWidget {
   final String desc;
   final IconData icon;
   final bool selected;
+  final Color iconColor;
   final Function onTap;
   const SingleSelectTile({
     Key key,
@@ -16,6 +17,7 @@ class SingleSelectTile extends StatelessWidget {
     @required this.asset,
     this.desc,
     @required this.text,
+    this.iconColor = primaryColor,
     this.icon,
   }) : super(key: key);
 
@@ -51,7 +53,11 @@ class SingleSelectTile extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  if (icon != null) Icon(icon),
+                  if (icon != null)
+                    Icon(
+                      icon,
+                      color: iconColor,
+                    ),
                   SizedBox(
                     width: 10,
                   ),

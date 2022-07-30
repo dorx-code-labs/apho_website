@@ -2,12 +2,10 @@ import 'package:apho/constants/basic.dart';
 import 'package:apho/constants/core.dart';
 import 'package:apho/constants/images.dart';
 import 'package:apho/constants/ui.dart';
+import 'package:apho/main.dart';
 import 'package:apho/models/service.dart';
 import 'package:apho/services/firebase_service.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/services/text_service.dart';
-import 'package:apho/views/contact_us_view.dart';
-import 'package:apho/views/team_view.dart';
 import 'package:apho/widgets/auto_scroll_showcaser.dart';
 import 'package:apho/widgets/custom_divider.dart';
 import 'package:apho/widgets/informational_box.dart';
@@ -25,7 +23,11 @@ import '../widgets/bottom_sheet_back_bar.dart';
 import '../widgets/nimbus_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  HomeScreen({Key key}) : super(key: key);
+  final Function(dynamic) onTapItem;
+  HomeScreen({
+    Key key,
+    @required this.onTapItem,
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -54,9 +56,6 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scrollbar(
       controller: controller,
-      thumbVisibility: true,
-      interactive: true,
-      thickness: 10,
       child: CustomScrollView(
         controller: controller,
         slivers: [
@@ -111,6 +110,10 @@ class _HomeScreenState extends State<HomeScreen>
                       singleRowIconThing(
                         "Hundreds of health workers at your disposal.",
                         Icons.health_and_safety,
+                      ),
+                      singleRowIconThing(
+                        "Panic Button for those times you need emergency health care.",
+                        Icons.emergency,
                       ),
                       singleRowIconThing(
                         "Health at your doorstep.",
@@ -401,7 +404,21 @@ class _HomeScreenState extends State<HomeScreen>
           SliverGrid(
             delegate: SliverChildListDelegate(
               services
-                  .map<Widget>((e) => SingleHomeScreenServiceCard(service: e))
+                  .map<Widget>(
+                    (e) => GestureDetector(
+                      onTap: () {
+                        widget.onTapItem(
+                          {
+                            "page": MyRoutePath.SERVICEDETAILS,
+                            "id": e.id,
+                          },
+                        );
+                      },
+                      child: SingleHomeScreenServiceCard(
+                        service: e,
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
             gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -548,7 +565,9 @@ If you are interested in providing healthcare services, click the join us button
                 SizedBox(
                   height: 40,
                 ),
-                Footer()
+                Footer(
+                  onTapItem: widget.onTapItem,
+                )
               ],
             ),
           )
@@ -567,6 +586,9 @@ If you are interested in providing healthcare services, click the join us button
         vertical: 3,
       ),
       child: Row(
+        mainAxisAlignment: Responsive.isMobile(context)
+            ? MainAxisAlignment.start
+            : MainAxisAlignment.center,
         children: [
           Icon(
             icon,
@@ -577,6 +599,7 @@ If you are interested in providing healthcare services, click the join us button
           ),
           Text(
             text,
+            style: TextStyle(fontSize: 18),
           )
         ],
       ),
@@ -808,7 +831,11 @@ class _SingleHomeScreenServiceCardState
 }
 
 class Footer extends StatefulWidget {
-  const Footer({Key key}) : super(key: key);
+  final Function(dynamic) onTapItem;
+  const Footer({
+    Key key,
+    @required this.onTapItem,
+  }) : super(key: key);
 
   @override
   State<Footer> createState() => _FooterState();
@@ -879,6 +906,25 @@ class _FooterState extends State<Footer> {
                   )
                 ],
               ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            CustomDivider(),
+            SizedBox(
+              height: 20,
+            ),
+            titleText(
+              "The ApHO Mission: To Create a digital health environment of providing comprehensive, affordable and cost efficient health services to people globally in their location",
+            ),
+            SizedBox(
+              height: 40,
+            ),
+            titleText(
+              "The ApHO Vision: To be the most caring and quick health service providers reaching many people around the world in their different locations.",
+            ),
+            SizedBox(
+              height: 10,
             ),
             SizedBox(
               height: 20,
@@ -1031,7 +1077,8 @@ class _FooterState extends State<Footer> {
   Widget footerItemText(String text) {
     return Text(
       text.capitalizeFirstOfEach,
-      textAlign: TextAlign.center,
+      textAlign:
+          Responsive.isMobile(context) ? TextAlign.center : TextAlign.start,
       style: TextStyle(
         fontSize: 18,
         color: Colors.white,
@@ -1055,8 +1102,16 @@ class _FooterState extends State<Footer> {
           .followedBy(
         services
             .map<Widget>(
-              (e) => footerItemText(
-                e.name,
+              (e) => GestureDetector(
+                onTap: () {
+                  widget.onTapItem({
+                    "page": MyRoutePath.SERVICE,
+                    "id": e.id,
+                  });
+                },
+                child: footerItemText(
+                  e.name,
+                ),
               ),
             )
             .toList(),
@@ -1113,10 +1168,10 @@ class _FooterState extends State<Footer> {
         ),
         GestureDetector(
           onTap: () {
-            NavigationService().push(
-              TeamView(
-                pushed: true,
-              ),
+            widget.onTapItem(
+              {
+                "page": MyRoutePath.TEAM,
+              },
             );
           },
           child: footerItemText(
@@ -1125,10 +1180,10 @@ class _FooterState extends State<Footer> {
         ),
         GestureDetector(
           onTap: () {
-            NavigationService().push(
-              ContactUsView(
-                pushed: true,
-              ),
+            widget.onTapItem(
+              {
+                "page": MyRoutePath.CONTACT,
+              },
             );
           },
           child: footerItemText(
@@ -1196,7 +1251,7 @@ class _AppOptionsBottomSheetState extends State<AppOptionsBottomSheet> {
         ),
         SingleSelectTile(
           onTap: () {
-            NavigationService().pop();
+            Navigator.of(context).pop();
 
             UIServices().showDatSheet(
               RealAppOptions(
@@ -1213,7 +1268,7 @@ class _AppOptionsBottomSheetState extends State<AppOptionsBottomSheet> {
         ),
         SingleSelectTile(
           onTap: () {
-            NavigationService().pop();
+            Navigator.of(context).pop();
 
             UIServices().showDatSheet(
               RealAppOptions(
@@ -1230,7 +1285,7 @@ class _AppOptionsBottomSheetState extends State<AppOptionsBottomSheet> {
         ),
         SingleSelectTile(
           onTap: () {
-            NavigationService().pop();
+            Navigator.of(context).pop();
 
             launchUrl(
               Uri.parse(
@@ -1312,7 +1367,7 @@ class _RealAppOptionsState extends State<RealAppOptions> {
         ),
         SingleSelectTile(
           onTap: () {
-            NavigationService().pop();
+            Navigator.of(context).pop();
 
             launchUrl(
               Uri.parse(
@@ -1328,8 +1383,9 @@ class _RealAppOptionsState extends State<RealAppOptions> {
           text: "Get App from Playstore",
         ),
         SingleSelectTile(
+          iconColor: primaryColor,
           onTap: () {
-            NavigationService().pop();
+            Navigator.of(context).pop();
 
             launchUrl(
               Uri.parse(
@@ -1340,7 +1396,8 @@ class _RealAppOptionsState extends State<RealAppOptions> {
             );
           },
           selected: false,
-          desc: "You could use the Web Version of the app instead.",
+          desc:
+              "Incase you don't have a smart phone, or you lack storage on your phone.",
           asset: null,
           text: "Use the Web App",
           icon: Icons.http,

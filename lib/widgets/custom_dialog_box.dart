@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:apho/constants/basic.dart';
 import 'package:apho/constants/images.dart';
 import 'package:apho/constants/ui.dart';
-import 'package:apho/services/navigation/navigation.dart';
 
 class CustomDialogBox extends StatelessWidget {
   final String bodyText;
@@ -121,7 +120,8 @@ class CustomDialogBox extends StatelessWidget {
                     child: showOtherButton != null && showOtherButton
                         ? InkWell(
                             onTap: () async {
-                              NavigationService().pop();
+                              Navigator.of(context).pop();
+                              
                               onButtonTap();
                             },
                             child: Material(

@@ -2,6 +2,7 @@ import 'package:apho/constants/ui.dart';
 import 'package:apho/models/question.dart';
 import 'package:apho/models/tip.dart';
 import 'package:apho/services/ui_services.dart';
+import 'package:apho/views/home_screen.dart';
 import 'package:apho/widgets/single_question.dart';
 import 'package:apho/widgets/single_tip.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,9 +12,11 @@ import 'package:paginate_firestore/paginate_firestore.dart';
 import 'no_data_found_view.dart';
 
 class ForumPage extends StatefulWidget {
+  final Function(dynamic) onTapItem;
   final int selected;
   ForumPage({
     Key key,
+    @required this.onTapItem,
     this.selected,
   }) : super(key: key);
 
@@ -80,8 +83,12 @@ class _ForumPageState extends State<ForumPage>
       body: TabBarView(
         controller: _controller,
         children: [
-          PublicForum(),
-          HealthTipsView(),
+          PublicForum(
+            onTapItem: widget.onTapItem,
+          ),
+          HealthTipsView(
+            onTapItem: widget.onTapItem,
+          ),
         ],
       ),
     ));
@@ -89,8 +96,10 @@ class _ForumPageState extends State<ForumPage>
 }
 
 class HealthTipsView extends StatefulWidget {
+  final Function(dynamic) onTapItem;
   HealthTipsView({
     Key key,
+    @required this.onTapItem,
   }) : super(key: key);
 
   @override
@@ -102,35 +111,45 @@ class _HealthTipsViewState extends State<HealthTipsView>
   @override
   bool get wantKeepAlive => true;
 
+  ScrollController controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return PaginateFirestore(
-      isLive: true,
-      itemsPerPage: 2,
-      itemBuilder: (context, snapshot, index) {
-        TipModel tip = TipModel.fromSnapshot(
-          snapshot[index],
-        );
+    return Scrollbar(
+      controller: controller,
+      child: PaginateFirestore(
+        scrollController: controller,
+        isLive: true,
+        itemsPerPage: 2,
+        itemBuilder: (context, snapshot, index) {
+          TipModel tip = TipModel.fromSnapshot(
+            snapshot[index],
+          );
 
-        return SingleHealthTip(
-          tip: tip,
-        );
-      },
-      onEmpty: NoDataFound(
-        text: "No Questions Found",
+          return SingleHealthTip(
+            tip: tip,
+          );
+        },
+        onEmpty: NoDataFound(
+          text: "No Questions Found",
+        ),
+        query: FirebaseFirestore.instance
+            .collection(QuestionModel.DIRECTORY)
+            .where(QuestionModel.QUESTION, isEqualTo: false)
+            .orderBy(QuestionModel.DATEOFPOSTING),
+        itemBuilderType: PaginateBuilderType.listView,
       ),
-      query: FirebaseFirestore.instance
-          .collection(QuestionModel.DIRECTORY)
-          .where(QuestionModel.QUESTION, isEqualTo: false)
-          .orderBy(QuestionModel.DATEOFPOSTING),
-      itemBuilderType: PaginateBuilderType.listView,
     );
   }
 }
 
 class PublicForum extends StatefulWidget {
-  PublicForum({Key key}) : super(key: key);
+  final Function(dynamic) onTapItem;
+  PublicForum({
+    Key key,
+    @required this.onTapItem,
+  }) : super(key: key);
 
   @override
   _PublicForumState createState() => _PublicForumState();
@@ -141,38 +160,46 @@ class _PublicForumState extends State<PublicForum>
   @override
   bool get wantKeepAlive => true;
 
+  ScrollController controller = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: PaginateFirestore(
-            isLive: true,
-            itemsPerPage: 2,
-            itemBuilder: (context, snapshot, index) {
-              QuestionModel qn = QuestionModel.fromSnapshot(
-                snapshot[index],
-              );
-
-              return SingleQuestion(
-                questionID: qn.id,
-                question: qn,
-              );
-            },
-            onEmpty: NoDataFound(
-              text: "No Health Tips Found",
-            ),
-            query: FirebaseFirestore.instance
-                .collection(QuestionModel.DIRECTORY)
-                .where(QuestionModel.QUESTION, isEqualTo: true)
-                .where(QuestionModel.APPROVED, isEqualTo: true)
-                .orderBy(QuestionModel.DATEOFPOSTING),
-            itemBuilderType: PaginateBuilderType.listView,
+    return Scrollbar(
+      controller: controller,
+      child: PaginateFirestore(
+        scrollController: controller,
+        footer: SliverList(
+          delegate: SliverChildListDelegate(
+            [
+              Footer(
+                onTapItem: widget.onTapItem,
+              ),
+            ],
           ),
-        )
-      ],
+        ),
+        isLive: true,
+        itemsPerPage: 2,
+        itemBuilder: (context, snapshot, index) {
+          QuestionModel qn = QuestionModel.fromSnapshot(
+            snapshot[index],
+          );
+
+          return SingleQuestion(
+            questionID: qn.id,
+            question: qn,
+          );
+        },
+        onEmpty: NoDataFound(
+          text: "No Health Tips Found",
+        ),
+        query: FirebaseFirestore.instance
+            .collection(QuestionModel.DIRECTORY)
+            .where(QuestionModel.QUESTION, isEqualTo: true)
+            .where(QuestionModel.APPROVED, isEqualTo: true)
+            .orderBy(QuestionModel.DATEOFPOSTING),
+        itemBuilderType: PaginateBuilderType.listView,
+      ),
     );
   }
 }

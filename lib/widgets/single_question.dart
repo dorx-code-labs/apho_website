@@ -2,7 +2,6 @@ import 'package:apho/models/thing_type.dart';
 import 'package:apho/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:apho/models/question.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/theming/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:apho/views/detailed_question_view.dart';
@@ -83,10 +82,12 @@ class _SingleQuestionState extends State<SingleQuestion> {
                 children: [
                   InkWell(
                     onTap: () async {
-                      NavigationService().push(
-                        DetailedQuestionView(
-                          questionID: question.id,
-                          question: question,
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DetailedQuestionView(
+                            questionID: question.id,
+                            question: question,
+                          ),
                         ),
                       );
                     },

@@ -1,5 +1,4 @@
 import 'package:apho/constants/basic.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/widgets/text_loader.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -154,7 +153,7 @@ class _DetailedImageState extends State<DetailedImage> {
         textColor: Colors.white,
       ); */
     } catch (e) {
-      NavigationService().pop();
+      Navigator.of(context).pop();
 
       Fluttertoast.showToast(
         msg: "There was an error downloading the image : $e",

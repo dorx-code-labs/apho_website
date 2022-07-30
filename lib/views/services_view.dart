@@ -9,7 +9,11 @@ import '../widgets/nimbus_button.dart';
 import 'home_screen.dart';
 
 class ServicesView extends StatefulWidget {
-  ServicesView({Key key}) : super(key: key);
+  final Function(dynamic) onTapItem;
+  ServicesView({
+    Key key,
+    @required this.onTapItem,
+  }) : super(key: key);
 
   @override
   State<ServicesView> createState() => _ServicesViewState();
@@ -85,7 +89,9 @@ class _ServicesViewState extends State<ServicesView>
                   ),
                 ),
               ),
-              Footer(),
+              Footer(
+                onTapItem: widget.onTapItem,
+              ),
             ],
           ),
         )

@@ -217,8 +217,80 @@ housekeeping services, Talk to a Doctor (specialists on hold) and a panic button
   )
 ];
 
+class SkillLevelData {
+  final String skill;
+  final double level;
+
+  SkillLevelData({
+    @required this.skill,
+    @required this.level,
+  });
+}
+
 List<Team> team = [
   Team(
+    skills: [
+      SkillLevelData(
+        skill: "Public Health Consulting",
+        level: 90,
+      ),
+      SkillLevelData(
+        skill: "Epidemology",
+        level: 100,
+      ),
+      SkillLevelData(
+        skill: "Global Health",
+        level: 100,
+      ),
+      SkillLevelData(
+        skill: "Laboratory",
+        level: 100,
+      ),
+    ],
+    employmentHistory: {
+      "COO, Robust Agency for Education and Community Transformation (REACT)": {
+        "year": "2021",
+        "desc":
+            "REACT is an indigenous non-governmental organization in Uganda that works with key stakeholders to respond to the ever-growing demand for quality and accessible technical assistance in delivery of community based health and education capacity-building services",
+      },
+      "Present, Infection Prevention and Control Specialist/Field Coordinator, World Health Organization (WHO)":
+          {
+        "year": "2020",
+      }
+    },
+    id: "michealMukiibi",
+    name: "Micheal Mukiibi",
+    past: {
+      "Senior Laboratory Technical Advisor and National Blood Safety and Injection Safety Project Lead, Center for Clinical Care and Clinical Research":
+          {
+        "location": "Abuja, Nigeria",
+        "achievement":
+            "Testing services activated under my supervision at 42 comprehensive  Anti-Retroviral Therapy (ART) sites, 726 Prevention of Mother to Child Transmission (PMTCT) sites and 86 TB/HIV sites. HIV testing service provision to over two million people; anti-retroviral therapy services to 32,979 persons and Deoxyribonucleic Acid (DNA) Polymerase Chain Reaction (PCR) testing for Early Infant Diagnosis (EID) to 3,375 HIV exposed infants. These results informed the development of the Nigerian policy for private sector engagement in HIV care"
+      },
+      "Senior Technical Advisor - Jhpiego": {
+        "location": "Monrovia, Liberia",
+        "achievement":
+            "The Liberia Association of Medical Laboratory Technologists awarded me their most distinguished national award, a Certificate of Honor (2018) for developing the country’s policy guidelines for the Board of Accreditation and Licensure of Medical Laboratory Technicians and the constitution for the Liberia Association of Medical Laboratory Technologists"
+      },
+      "Public Health Expert, laboratory and Surveillance, WHO": {
+        "location": "Mutare, Zimbabwe",
+        "achievement":
+            "Led the team that produced the Health Resources Availability Mapping System (HeRAMS), a strategic report that provided timely, relevant and reliable information about health resources, to the relevant decision maker"
+      }
+    },
+    color: primaryColor,
+    post: "CEO",
+    image: micheal,
+    desc:
+        '''Public health and project management expert with a laboratory and microbiology background. More than 17 years of experience in strengthening and upscaling laboratories and health systems in Liberia, Malawi, Nigeria, Somalia, Uganda, USA, and Zimbabwe, to create resilient and sustainable programs sensitive enough to detect global health security risks from microbial threats. Former Senior Laboratory Advisor and National Program Lead (Blood and Injection Safety) for the Centre for Clinical Care and Clinical Research in Nigeria, and Senior Technical Advisor with Jhpiego in Liberia. Also served as the Country Technical Officer for the University of Maryland School of Medicine Global Laboratory Program in Nigeria, and as Technical Specialist for the Chemonics Global Supply chain project in Malawi. Former Laboratory and Surveillance Technical Specialist for the World Health Organization in Somalia and Zimbabwe. ''',
+    email: "http://mukiibim@aphohealth.com/",
+    linkedIn: null,
+    phone: "+256780915402",
+  ),
+  Team(
+    past: null,
+    skills: null,
+    employmentHistory: null,
     id: "mitirikpwePatricia",
     name: "Patricia Mitirikpwe",
     color: Colors.pink,
@@ -231,22 +303,9 @@ List<Team> team = [
     phone: aphoPhoneNumber,
   ),
   Team(
-    id: "michealMukiibi",
-    name: "Micheal Mukiibi",
-    color: primaryColor,
-    post: "CEO",
-    image: micheal,
-    desc:
-        '''Michael Mukiibi has had a progressive public health career during which he has accumulated over 16 years of experience in strengthening and upscaling laboratories and health systems across different countries to create resilient and sustainable programs sensitive enough to detect global health security risks from microbial threats. He achieved this while working in multiple organizations funded by the U.S. Centers for Disease Control and Prevention (CDC), the United States Agency for International Development (USAID), the German Corporation and the Global Fund. 
-
-More broadly, his speciality encompasses quality management systems, supply chain management, emerging and reemerging infectious diseases including Antimicrobial Resistance (AMR) surveillance/containment; infectious disease and epidemic prevention and control; Human Immunodeficiency Virus/Tuberculosis (HIV/TB) surveillance; leadership and management; development and operationalization of policies, guidelines and standard operating procedures. He has operated across Africa, having commenced his career in Uganda, which later broadened to Nigeria, Liberia, Malawi, Somalia, and Zimbabwe. He has enhanced his expertise in Virology through a preceptorship at the Institute of Human Virology (IHV) of the University of Maryland in Baltimore, USA.
-
-Michael possesses a Bachelor of Biomedical Laboratory Technology, a Master of Technology in Medical Microbiology and a Master of Science in Public Health. He is currently a PhD candidate of Public Health.''',
-    email: "http://mukiibim@reactug.org/",
-    linkedIn: null,
-    phone: null,
-  ),
-  Team(
+    skills: null,
+    past: null,
+    employmentHistory: null,
     id: "mubiruSimeon",
     name: "Mubiru Simeon",
     color: Colors.purple,
@@ -264,10 +323,13 @@ class Team {
   final String name;
   final String image;
   final Color color;
+  final Map employmentHistory;
+  final List<SkillLevelData> skills;
   final String desc;
   final String post;
   final String linkedIn;
   final String phone;
+  final Map past;
   final String id;
   final String email;
   Team({
@@ -275,6 +337,9 @@ class Team {
     @required this.id,
     @required this.color,
     @required this.image,
+    @required this.skills,
+    @required this.employmentHistory,
+    @required this.past,
     @required this.desc,
     @required this.post,
     @required this.email,

@@ -1,5 +1,4 @@
 import 'package:apho/models/tip.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/theming/theme_controller.dart';
 import 'package:apho/views/detailed_tip_view.dart';
 import 'package:apho/widgets/pictures_grid.dart';
@@ -77,10 +76,12 @@ class _SingleHealthTipState extends State<SingleHealthTip> {
               InkWell(
                 onTap: widget.onTap ??
                     () async {
-                      NavigationService().push(
-                        DetailedTipView(
-                          tipID: tip.id,
-                          tip: tip,
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DetailedTipView(
+                            tipID: tip.id,
+                            tip: tip,
+                          ),
                         ),
                       );
                     },

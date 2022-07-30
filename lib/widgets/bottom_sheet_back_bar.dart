@@ -1,6 +1,5 @@
 import 'package:apho/widgets/responsive.dart';
 import 'package:flutter/material.dart';
-import 'package:apho/services/navigation/navigation.dart';
 
 class BackBar extends StatefulWidget {
   final String text;
@@ -47,7 +46,7 @@ class _BackBarState extends State<BackBar> {
                 ),
                 onPressed: widget.onPressed ??
                     () {
-                      NavigationService().pop();
+                      Navigator.of(context).pop();
                     },
               ),
               Expanded(

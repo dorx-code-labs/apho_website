@@ -1,7 +1,6 @@
 import 'package:apho/constants/images.dart';
 import 'package:apho/models/question.dart';
 import 'package:apho/models/tip.dart';
-import 'package:apho/services/navigation/navigation.dart';
 import 'package:apho/theming/theme_controller.dart';
 import 'package:apho/widgets/single_image.dart';
 import 'package:apho/widgets/top_card.dart';
@@ -152,9 +151,11 @@ class _DetailedTipViewState extends State<DetailedTipView> {
                               height: MediaQuery.of(context).size.height * 0.5,
                               child: GestureDetector(
                                 onTap: () {
-                                  NavigationService().push(
-                                    DetailedImage(
-                                      images: tip.images,
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailedImage(
+                                        images: tip.images,
+                                      ),
                                     ),
                                   );
                                 },
@@ -459,10 +460,12 @@ class _DetailedTipViewState extends State<DetailedTipView> {
           ),
           child: InkWell(
             onTap: () async {
-              NavigationService().push(
-                DetailedTipView(
-                  tip: tip,
-                  tipID: tip.id,
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DetailedTipView(
+                    tip: tip,
+                    tipID: tip.id,
+                  ),
                 ),
               );
             },
@@ -548,10 +551,12 @@ class _DetailedTipViewState extends State<DetailedTipView> {
           ),
           child: InkWell(
             onTap: () async {
-              NavigationService().push(
-                DetailedQuestionView(
-                  question: qn,
-                  questionID: qn.id,
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => DetailedQuestionView(
+                    question: qn,
+                    questionID: qn.id,
+                  ),
                 ),
               );
             },

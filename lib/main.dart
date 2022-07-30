@@ -1,17 +1,23 @@
+import 'dart:io';
+
 import 'package:apho/constants/constants_used_in_the_ui.dart';
 import 'package:apho/constants/ui.dart';
 import 'package:apho/models/service.dart';
 import 'package:apho/theming/theme_controller.dart';
+import 'package:apho/views/career_view.dart';
 import 'package:apho/views/contact_us_view.dart';
 import 'package:apho/views/health_tips.dart';
+import 'package:apho/views/services_view.dart';
 import 'package:apho/views/team_view.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:focused_menu/focused_menu.dart';
 import 'package:focused_menu/modals.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'constants/core.dart';
 import 'constants/images.dart';
-import 'services/navigation/navigation.dart';
 import 'services/ui_services.dart';
 import 'views/home_screen.dart';
 import 'widgets/custom_divider.dart';
@@ -30,7 +36,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final configurations = Configurations();
-/* 
+
   await Firebase.initializeApp(
     name: "ApHO Website",
     options: FirebaseOptions(
@@ -41,7 +47,7 @@ void main() async {
       projectId: configurations.projectId,
     ),
   );
- */
+
   runApp(MyApp());
 }
 
@@ -67,6 +73,8 @@ class _MyAppState extends State<MyApp> {
             scrollbarTheme: ScrollbarThemeData(
               radius: Radius.circular(borderDouble),
               thumbVisibility: MaterialStateProperty.all(true),
+              interactive: true,
+              thickness: MaterialStateProperty.all(10),
               thumbColor: MaterialStateProperty.all(
                 primaryColor,
               ),
@@ -102,27 +110,26 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
 
     // Handle '/'
     if (uri.pathSegments.isEmpty) {
-      print("-----------------the segments are home---------------");
       return MyRoutePath.home();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.FORUM) {
-      print("-----------------the segments are forum---------------");
       return MyRoutePath.forum();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.CONTACT) {
-      print("-----------------the segments are contact---------------");
       return MyRoutePath.contact();
     }
 
     if (uri.pathSegments[0] == MyRoutePath.TEAM) {
-      print("-----------------the segments are team---------------");
       return MyRoutePath.teamView();
     }
 
+    if (uri.pathSegments[0] == MyRoutePath.SERVICE) {
+      return MyRoutePath.service();
+    }
+
     if (uri.pathSegments.length == 2) {
-      print("-----------------the segments are multiple---------------");
       var remaining = uri.pathSegments[1];
 
       if (uri.pathSegments[0] == SERVICES) {
@@ -135,7 +142,7 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
         }
 
         if (sv != null) {
-          return MyRoutePath.service(
+          return MyRoutePath.serviceDetails(
             sv,
             remaining,
           );
@@ -166,7 +173,6 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
     }
 
     // Handle unknown routes
-    print("-----------------the segments are unknown---------------");
     return MyRoutePath.unknown();
   }
 
@@ -174,12 +180,10 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
   // ignore: avoid_renaming_method_parameters
   RouteInformation restoreRouteInformation(MyRoutePath path) {
     if (path.isUnknown) {
-      print("-----------------its a 404---------------");
       return RouteInformation(location: '/404');
     }
 
     if (path.isHomePage) {
-      print("-----------------its home---------------");
       return RouteInformation(location: '/');
     }
 
@@ -192,11 +196,9 @@ class BookRouteInformationParser extends RouteInformationParser<MyRoutePath> {
     }
 
     if (path.isContactUs || path.isTeamPage || path.isForumPage) {
-      print("-----------------its ${path.type}---------------");
       return RouteInformation(location: '/${path.type}');
     }
 
-    print("-----------------its some unknown shit ${path.type}---------------");
     return null;
   }
 }
@@ -216,36 +218,37 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
   @override
   MyRoutePath get currentConfiguration {
     if (show404) {
-      print("unknown config");
       return MyRoutePath.unknown();
     }
 
     if (mode == MyRoutePath.FORUM) {
-      print("forum config");
       return MyRoutePath.forum();
     }
 
+    if (mode == MyRoutePath.CAREER) {
+      return MyRoutePath.career();
+    }
+
     if (mode == MyRoutePath.CONTACT) {
-      print("contact config");
       return MyRoutePath.contact();
     }
 
     if (mode == MyRoutePath.SERVICE) {
-      print("service config");
-      return MyRoutePath.service(data, id);
+      return MyRoutePath.service();
+    }
+
+    if (mode == MyRoutePath.SERVICEDETAILS) {
+      return MyRoutePath.serviceDetails(data, id);
     }
 
     if (mode == MyRoutePath.TEAM) {
-      print("team config");
       return MyRoutePath.teamView();
     }
 
     if (mode == MyRoutePath.TEAMDETAILS) {
-      print("team deets config");
       return MyRoutePath.teamDetails(data, id);
     }
 
-    print("home config");
     return MyRoutePath.home();
   }
 
@@ -257,37 +260,73 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
         MaterialPage(
           key: ValueKey(MyRoutePath.HOME),
           child: MyScaffold(
+            mode: mode,
             onTapped: _handleBookTapped,
-            child: HomeScreen(),
+            child: HomeScreen(
+              onTapItem: _handleBookTapped,
+            ),
           ),
         ),
         if (show404)
           MaterialPage(
             key: ValueKey('UnknownPage'),
             child: UnknownScreen(),
-          )
-        else if (mode == MyRoutePath.FORUM)
-          DefaultScaffold(
-            child: ForumPage(),
-            onTapped: _handleBookTapped,
-          )
-        else if (mode == MyRoutePath.CONTACT)
-          DefaultScaffold(
-            onTapped: _handleBookTapped,
-            child: ContactUsView(
-              pushed: false,
+          ),
+        if (mode == MyRoutePath.FORUM)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.FORUM),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: ForumPage(
+                onTapItem: _handleBookTapped,
+              ),
             ),
-          )
-        else if (mode == MyRoutePath.SERVICE)
-          DefaultScaffold(
-            onTapped: _handleBookTapped,
-            child: Container(),
-          )
-        else if (mode == MyRoutePath.TEAM)
-          DefaultScaffold(
-            onTapped: _handleBookTapped,
-            child: TeamView(),
-          )
+          ),
+        if (mode == MyRoutePath.CONTACT)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.CONTACT),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: ContactUsView(
+                onTapItem: _handleBookTapped,
+              ),
+            ),
+          ),
+        if (mode == MyRoutePath.SERVICE)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.SERVICE),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: ServicesView(
+                onTapItem: _handleBookTapped,
+              ),
+            ),
+          ),
+        if (mode == MyRoutePath.TEAM)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.CONTACT),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: TeamView(
+                onTapItem: _handleBookTapped,
+              ),
+            ),
+          ),
+        if (mode == MyRoutePath.CAREER)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.CAREER),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: CareersView(
+                onTapItem: _handleBookTapped,
+              ),
+            ),
+          ),
       ],
       onPopPage: (route, result) {
         if (!route.didPop(result)) {
@@ -307,18 +346,17 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
   @override
   // ignore: avoid_renaming_method_parameters
   Future<void> setNewRoutePath(MyRoutePath path) async {
-    print("here's the path type: ${path.type}");
-    print("here's the path id: ${path.id}");
-    print("here's path isContact: ${path.isContactUs}");
-
     if (path.isUnknown) {
       show404 = true;
       return;
     }
 
     if (path.isContactUs) {
-      print("making mode to be contact");
       mode = MyRoutePath.CONTACT;
+    }
+
+    if (path.isCareer) {
+      mode = MyRoutePath.CAREER;
     }
 
     if (path.isTeamPage) {
@@ -333,7 +371,7 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
       mode = MyRoutePath.FORUM;
     }
 
-    if (path.isServicePage) {
+    if (path.isServiceDetails) {
       ServiceModel sv;
 
       for (var element in services) {
@@ -343,7 +381,7 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
       }
 
       if (sv != null) {
-        mode = MyRoutePath.SERVICE;
+        mode = MyRoutePath.SERVICEDETAILS;
         data = sv;
       } else {
         show404 = true;
@@ -370,12 +408,11 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
     }
 
     show404 = false;
-    print("done reconfigging and this is mode: $mode");
   }
 
-  void _handleBookTapped(String mm) {
-    print(mm.toString());
-    mode = mm;
+  void _handleBookTapped(dynamic mm) {
+    mode = mm["page"];
+    id = mm["id"];
     notifyListeners();
   }
 }
@@ -392,6 +429,8 @@ class MyRoutePath {
   static const TEAMDETAILS = "teamDetails";
   static const SERVICE = "service";
   static const CONTACT = "contact";
+  static const SERVICEDETAILS = "serviceDetails";
+  static const CAREER = "career";
 
   MyRoutePath.home()
       : data = null,
@@ -399,10 +438,22 @@ class MyRoutePath {
         type = HOME,
         isUnknown = false;
 
-  MyRoutePath.service(
+  MyRoutePath.serviceDetails(
     this.data,
     this.id,
   )   : isUnknown = false,
+        type = SERVICEDETAILS;
+
+  MyRoutePath.career()
+      : isUnknown = false,
+        data = null,
+        id = null,
+        type = CAREER;
+
+  MyRoutePath.service()
+      : isUnknown = false,
+        data = null,
+        id = null,
         type = SERVICE;
 
   MyRoutePath.teamDetails(
@@ -439,46 +490,64 @@ class MyRoutePath {
   bool get isServicePage => type == SERVICE;
   bool get isTeamPage => type == TEAM;
   bool get isForumPage => type == FORUM;
+  bool get isCareer => type == CAREER;
+  bool get isServiceDetails => type == SERVICEDETAILS;
   bool get isTeamDetails => type == TEAMDETAILS;
   bool get isContactUs => type == CONTACT;
 }
 
-class DefaultScaffold extends Page {
-  final ValueChanged<String> onTapped;
+class MyScaffold extends StatefulWidget {
   final Widget child;
-
-  const DefaultScaffold({
-    Key key,
-    @required this.onTapped,
-    @required this.child,
-  }) : super(key: key);
-
-  @override
-  Route createRoute(BuildContext context) {
-    return MaterialPageRoute(
-      settings: this,
-      builder: (BuildContext context) {
-        return MyScaffold(
-          child: child,
-          onTapped: onTapped,
-        );
-      },
-    );
-  }
-}
-
-class MyScaffold extends StatelessWidget {
-  final Widget child;
-  final ValueChanged<String> onTapped;
+  final String mode;
+  final ValueChanged<Map> onTapped;
   const MyScaffold({
     Key key,
     @required this.child,
+    @required this.mode,
     @required this.onTapped,
   }) : super(key: key);
 
   @override
+  State<MyScaffold> createState() => _MyScaffoldState();
+}
+
+class _MyScaffoldState extends State<MyScaffold> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: Colors.green,
+        hoverColor: primaryColor,
+        hoverElevation: standardElevation,
+        onPressed: () async {
+          var whatsapp = "+256755572967";
+
+          var whatsappUrlAndroid =
+              "whatsapp://send?phone=" + whatsapp + "&text=hello";
+          var whatappUrlIos =
+              "https://wa.me/$whatsapp?text=${Uri.parse("hello")}";
+
+          if (Platform.isIOS) {
+            // for iOS phone only
+
+            await launchUrl(
+              Uri.parse(whatappUrlIos),
+            );
+          } else {
+            // android , web
+
+            await launchUrl(
+              Uri.parse(whatsappUrlAndroid),
+            );
+          }
+        },
+        icon: Icon(
+          FontAwesomeIcons.whatsapp,
+        ),
+        label: Text(
+          "Chat with us",
+        ),
+      ),
       appBar: Responsive.isMobile(context)
           ? AppBar(
               backgroundColor: Theme.of(context).canvasColor,
@@ -497,26 +566,34 @@ class MyScaffold extends StatelessWidget {
           Responsive(
             desktop: WebNavigationBar(
               goHome: () {
-                onTapped(MyRoutePath.HOME);
+                widget.onTapped({
+                  "page": MyRoutePath.HOME,
+                });
               },
               switchToIndex: (b) {
-                onTapped(b);
+                widget.onTapped({
+                  "page": b,
+                });
               },
-              currentIndex: 2,
+              mode: widget.mode,
             ),
             tablet: WebNavigationBar(
               goHome: () {
-                onTapped(MyRoutePath.HOME);
+                widget.onTapped({
+                  "page": MyRoutePath.HOME,
+                });
               },
               switchToIndex: (b) {
-                onTapped(b);
+                widget.onTapped({
+                  "page": b,
+                });
               },
-              currentIndex: 1,
+              mode: widget.mode,
             ),
             mobile: SizedBox(),
           ),
           Expanded(
-            child: child,
+            child: widget.child,
           )
         ],
       ),
@@ -540,7 +617,7 @@ class MyScaffold extends StatelessWidget {
                           children: [
                             IconButton(
                               onPressed: () {
-                                NavigationService().pop();
+                                Navigator.of(context).pop();
                               },
                               icon: Icon(
                                 Icons.close,
@@ -558,7 +635,7 @@ class MyScaffold extends StatelessWidget {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  NavigationService().pop();
+                                  Navigator.of(context).pop();
                                 },
                                 child: Image.asset(
                                   logo,
@@ -570,20 +647,36 @@ class MyScaffold extends StatelessWidget {
                               ),
                               singleDrawerItem(
                                 label: "Home",
-                                onTap: () {},
+                                onTap: () {
+                                  widget.onTapped({
+                                    "page": MyRoutePath.HOME,
+                                  });
+                                },
                               ),
                               singleDrawerItem(
                                 otherPages: services,
                                 label: "Services",
-                                onTap: () {},
+                                onTap: () {
+                                  widget.onTapped({
+                                    "page": MyRoutePath.SERVICE,
+                                  });
+                                },
                               ),
                               singleDrawerItem(
                                 label: "Health",
-                                onTap: () {},
+                                onTap: () {
+                                  widget.onTapped({
+                                    "page": MyRoutePath.FORUM,
+                                  });
+                                },
                               ),
                               singleDrawerItem(
                                 label: "Team",
-                                onTap: () {},
+                                onTap: () {
+                                  widget.onTapped({
+                                    "page": MyRoutePath.TEAM,
+                                  });
+                                },
                               ),
                               SizedBox(
                                 height: 30,
@@ -592,7 +685,11 @@ class MyScaffold extends StatelessWidget {
                                 width: double.infinity,
                                 buttonTitle: "Contact",
                                 onPressed: () {
-                                  NavigationService().pop();
+                                  Navigator.of(context).pop();
+
+                                  widget.onTapped({
+                                    "page": MyRoutePath.HOME,
+                                  });
                                 },
                               ),
                               SizedBox(
@@ -602,7 +699,7 @@ class MyScaffold extends StatelessWidget {
                                 width: double.infinity,
                                 buttonTitle: "Get The App",
                                 onPressed: () {
-                                  NavigationService().pop();
+                                  Navigator.of(context).pop();
 
                                   UIServices().showDatSheet(
                                     AppOptionsBottomSheet(),
@@ -668,7 +765,7 @@ class MyScaffold extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      NavigationService().pop();
+                      Navigator.of(context).pop();
 
                       onTap();
                     },

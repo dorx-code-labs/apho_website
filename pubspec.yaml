@@ -80,7 +80,6 @@ dependencies:
   day_night_switcher: ^0.2.0+1
   charts_flutter: ^0.12.0
   material_floating_search_bar: ^0.3.4
-  fading_edge_scrollview: ^1.0.2
   avatar_glow: ^1.2.0
   convex_bottom_bar: ^3.0.0
   auth_buttons: ^1.0.1+4

@@ -1,4 +1,4 @@
-import 'package:apho/views/home_screen.dart';
+/* import 'package:apho/views/home_screen.dart';
 import 'package:apho/widgets/single_image.dart';
 import 'package:flutter/material.dart';
 
@@ -35,7 +35,9 @@ class _ProductsViewState extends State<ProductsView>
                     product: apps[1],
                     color: Colors.pink.withOpacity(0.2),
                   ),
-                  Footer(),
+                  Footer(
+                   
+                  ),
                 ])
               ],
             ),
@@ -230,3 +232,4 @@ class _SingleProductsViewState extends State<SingleProductsView> {
     );
   }
 }
+ */

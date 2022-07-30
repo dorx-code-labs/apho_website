@@ -7,7 +7,7 @@ class NimbusButton extends StatelessWidget {
   NimbusButton({
     Key key,
     @required this.buttonTitle,
-    this.width = 150,
+    this.width = 120,
     this.height = 60,
     this.titleStyle,
     this.titleColor = Colors.white,
