@@ -309,10 +309,10 @@ List<Team> team = [
     id: "mubiruSimeon",
     name: "Mubiru Simeon",
     color: Colors.purple,
-    image: micheal,
+    image: simeon,
     post: "IT Manager",
     desc:
-        "Simeon is good at coding and computer stuff. He studied from here and then he studied a little more from there and then afterwards, he added some more studying from here and there. Geneh he has studied a lot.",
+        "Simeon is good at coding and computer stuff. He studied from here and then he studied a little more from there and then afterwards, he added some more studying from here and there. Generally he has studied a lot.",
     email: "mubzsimeon@gmail.com",
     linkedIn: "simeon.web.app",
     phone: "0708387637",

@@ -225,6 +225,10 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
       return MyRoutePath.forum();
     }
 
+    if (mode == MyRoutePath.HOME) {
+      return MyRoutePath.home();
+    }
+
     if (mode == MyRoutePath.CAREER) {
       return MyRoutePath.career();
     }
@@ -257,16 +261,17 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
     return Navigator(
       key: navigatorKey,
       pages: [
-        MaterialPage(
-          key: ValueKey(MyRoutePath.HOME),
-          child: MyScaffold(
-            mode: mode,
-            onTapped: _handleBookTapped,
-            child: HomeScreen(
-              onTapItem: _handleBookTapped,
+        if (mode == MyRoutePath.HOME || mode == null)
+          MaterialPage(
+            key: ValueKey(MyRoutePath.HOME),
+            child: MyScaffold(
+              mode: mode,
+              onTapped: _handleBookTapped,
+              child: HomeScreen(
+                onTapItem: _handleBookTapped,
+              ),
             ),
           ),
-        ),
         if (show404)
           MaterialPage(
             key: ValueKey('UnknownPage'),
@@ -369,6 +374,10 @@ class BookRouterDelegate extends RouterDelegate<MyRoutePath>
 
     if (path.isForumPage) {
       mode = MyRoutePath.FORUM;
+    }
+
+    if (path.isHomePage) {
+      mode = MyRoutePath.HOME;
     }
 
     if (path.isServiceDetails) {

@@ -78,5 +78,6 @@ String seven = "assets/images/7.jpg";
 String eight = "assets/images/8.jpg";
 String patricia = "assets/images/patricia.jpeg";
 String micheal = "assets/images/micheal.jpg";
+String simeon = "assets/images/simeon.jpg";
 
 String googleSVG = "assets/images/google_play_svg.svg";

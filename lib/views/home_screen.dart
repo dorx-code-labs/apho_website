@@ -409,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen>
                       onTap: () {
                         widget.onTapItem(
                           {
-                            "page": MyRoutePath.SERVICEDETAILS,
+                            "page": MyRoutePath.SERVICE,
                             "id": e.id,
                           },
                         );
@@ -580,28 +580,56 @@ If you are interested in providing healthcare services, click the join us button
     String text,
     IconData icon,
   ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8.0,
-        vertical: 3,
+    return Responsive(
+      mobile: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 3,
+        ),
+        child: Row(
+          mainAxisAlignment: Responsive.isMobile(context)
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: primaryColor,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Text(
+                text,
+                style: TextStyle(fontSize: 18),
+              ),
+            )
+          ],
+        ),
       ),
-      child: Row(
-        mainAxisAlignment: Responsive.isMobile(context)
-            ? MainAxisAlignment.start
-            : MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: primaryColor,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Text(
-            text,
-            style: TextStyle(fontSize: 18),
-          )
-        ],
+      desktop: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8.0,
+          vertical: 3,
+        ),
+        child: Row(
+          mainAxisAlignment: Responsive.isMobile(context)
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: primaryColor,
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Text(
+              text,
+              style: TextStyle(fontSize: 18),
+            )
+          ],
+        ),
       ),
     );
   }
