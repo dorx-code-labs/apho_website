@@ -10,9 +10,9 @@ String aphoFacebook = "aphohealth";
 const niranWebsite = "https://bio.link/dorx";
 const contactEmail = "contact@reactug.org";
 
-String nurseTypeID = "2HUYb4RmM6PDgTr6gA2s";
-String cleanerTypeID = "LKTXPOpLh8HLbOZGh6Bt";
-String midWifeID = "FLFkfN1ZUbwSxfZ4VYbB";
+
+
+
 
 String appLinkToPlaystore =
     "https://play.google.com/store/apps/details?id=com.NiranCodeLab.apho_client";
